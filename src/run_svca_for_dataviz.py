@@ -15,6 +15,10 @@ from svca import SVCA, train_test_split_idx, checkerboard_centers
 import tensorflow as tf
 
 class Experiment:
+    """
+    Class for loading neural and behavioral data from Stringer & Pachitariu et al.'s
+    data (https://figshare.com/articles/dataset/Recordings_of_ten_thousand_neurons_in_visual_cortex_during_spontaneous_behaviors/6163622)
+    """
 
     def __init__(self, file):
 
@@ -38,6 +42,11 @@ class Experiment:
 
 
 def run_svca_and_predict(file, outpath, checkerboard=60, predict=True, nsvc_save=128, gpuId=None):
+    """
+    Runs SVCA on neural data.
+    Then if predict=True, predicts neural activity from behavioral motion energy PCs using both
+    reduced-rank regression and LSTM neural network approaches.
+    """
 
     if gpuId is not None: 
         # choose gpu to use

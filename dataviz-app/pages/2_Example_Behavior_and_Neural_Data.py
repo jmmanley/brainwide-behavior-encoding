@@ -1,11 +1,5 @@
-import numpy as np 
 import streamlit as st
-from plotly.subplots import make_subplots
-import plotly.graph_objects as go
-from plotly.express.colors import sample_colorscale
-from scipy.stats import zscore
-import os
-
+import plots
 
 st.markdown('# Example Behavior and Neural Data')
 
@@ -13,59 +7,7 @@ st.markdown('To get a sense of the type of data that are analyzed in systems neu
 
 st.markdown('As a proxy for the mouse\'s movements and arousal, the top row displays its Running speed (purple) and Pupil area (red). Below in the middle row are the latent variables identified via dimensionality reduction of the full neural data, called the Shared Variance Components (SVCs). Finally, the bottom row shows traces of actual spiking from individual example neurons.')
 
-file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'processed-data', 'spont_M150824_MP019_2016-04-05_128SVC_Truepredict.npz')
-data = np.load(file)
-
-t = data['t']
-run_speed = data['run_speed']
-pupil_area = data['pupil_area']
-projs1 = data['projs1']
-neurons = data['ex_neurons'][:100,:]
-
-
-fig = make_subplots(rows=3, cols=1, shared_xaxes=True)
-
-fig.append_trace(go.Line(
-    x=t,
-    y=zscore(run_speed), mode='lines',
-    name = "Run speed"
-), row=1, col=1)
-
-
-fig.append_trace(go.Line(
-    x=t,  mode='lines',
-    y=zscore(pupil_area)-5, name="Pupil area"
-), row=1, col=1)
-
-colors = sample_colorscale('Twilight',[(x%10)/10 for x in np.arange(projs1.shape[0])])
-
-for i in range(projs1.shape[0]):
-    fig.append_trace(go.Line(
-        x=t,  mode='lines',
-        y=-projs1[i,:]/7+i+1, name="SVC "+str(i+1),
-        line = dict(color=colors[i])
-    ), row=2, col=1)
-
-fig.update_yaxes(range=[3.5,0.1], row=2, col=1)
-
-colors = sample_colorscale('IceFire',[(x%10)/10 for x in np.arange(neurons.shape[0])])
-
-for i in range(neurons.shape[0]):
-    fig.append_trace(go.Line(
-        x=t,  mode='lines',
-        y=-neurons[i,:]/7+i+1, name="Neuron "+str(i+1),
-        line = dict(color=colors[i])
-    ), row=3, col=1)
-
-fig.update_yaxes(range=[3.5,0.1], row=3, col=1)
-
-
-fig.update_layout(height=1000, width=1000, xaxis3_title='Time (seconds)', yaxis_title='Behavioral variables', 
-                  yaxis2_title='Neural SVC dimensions', yaxis3_title='Random example neurons', showlegend=False,
-                  yaxis1_tickvals=[-5,1], yaxis1_ticktext=['Pupil area', 'Running'], yaxis1_showgrid=False, yaxis1_zeroline=False, 
-                  yaxis2_showgrid=False, yaxis2_zeroline=False, yaxis3_showgrid=False, yaxis3_zeroline=False)
-
-
+fig = plots.plot_example_behavior_neurons()
 st.plotly_chart(fig)
 
 st.markdown('Note the strong correlations between some of the Neural SVCs (e.g., SVCs 1 & 2) and the behavioral variables. Can you spot any single neuron in the bottom plot that is correlated with behavior? As you may notice, these individual neurons are much noisier and many of them are not clearly correlated with the behavior; however, dimensionality reduction of these noisy neurons reveals the latent representation of behavior within the SVCs.')

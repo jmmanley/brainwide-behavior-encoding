@@ -54,6 +54,11 @@ class VAE:
 
 
 def compare_svca_vae_dimred(file, outpath,  checkerboard=60, nsvc_save=128, gpuId=None):
+    """
+    Runs SVCA on neural data.
+    Then attempts to further reduce the dimensionality into nonlinear space using a
+    variational autoencoder (VAE) approach.
+    """
 
     if gpuId is not None: 
         # choose gpu to use
